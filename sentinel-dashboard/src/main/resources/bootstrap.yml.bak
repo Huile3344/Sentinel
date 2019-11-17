@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: sentinel-dashboard
+#  profiles:
+#    active: dev
+  cloud:
+    nacos:
+      # nacos-config 只能配置在 bootstrap 文件中
+      config:
+#        file-extension: yaml
+#        file-extension: properties
+        server-addr: 192.168.0.6:8848
+        # dataId 默认命名规则为：${prefix}-${spring.profile.active}.${file-extension}
+#        prefix: alibaba.cloud.${spring.application.name}
+        # 直接指定 dataId 名称
+        name: ${spring.application.name}.yaml
+        namespace: 4c33f46c-fd59-4c27-b725-14c7af59fed8
+        # 可以考虑按用户来分组服务和配置
+        group: ${spring.application.name}
+#        clusterName: ${spring.profiles.active}-SM
+
+#  Nacos共享配置的两种实现方式，两种方式针对不同的场景，总结如下：
+#  shared-dataids方式：
+#  适合于共享配置文件与项目默认配置文件处于相同Group时，直接两条命令就可以搞定
+#  优点：配置方便
+#  缺点：只能在同一Group中
+#  ext-config方式：
+#  它可以由开发者自定义要读取的共享配置文件的DataId、Group、refresh属性，这样刚好解决了shared-dataids存在的局限性。
+#  优点：可以与shared-dataids方案结合使用，用户自定义配置。灵活性强
+#  缺点：配置容易出错，要熟悉YAML语法
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+logging:
+  level:
+    root: INFO
+    com.alibaba.csp.sentinel: DEBUG
