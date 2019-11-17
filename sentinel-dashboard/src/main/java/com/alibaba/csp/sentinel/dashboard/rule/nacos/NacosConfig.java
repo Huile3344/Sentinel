@@ -20,6 +20,7 @@ import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.api.config.ConfigFactory;
 import com.alibaba.nacos.api.config.ConfigService;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -83,12 +84,33 @@ public class NacosConfig {
         return s -> JSON.parseArray(s, ParamFlowRuleEntity.class);
     }
 
+    private static String getConfig(String name) {
+        // env
+        String val = System.getenv(name);
+        if (StringUtils.isNotEmpty(val)) {
+            return val;
+        }
+        // properties
+        val = System.getProperty(name);
+        if (StringUtils.isNotEmpty(val)) {
+            return val;
+        }
+        return "";
+    }
+
     @Bean
     public ConfigService nacosConfigService() throws Exception {
+        String serverAddr = getConfig("sentinel.dashboard.nacos.config.server-addr");
+        if (StringUtils.isBlank(serverAddr)) {
+            serverAddr = getConfig("sentinel.dashboard.nacos.config.serverAddr");
+        }
+        if (StringUtils.isBlank(serverAddr)) {
+            serverAddr = "nacos";
+        }
+        String namespace = getConfig("sentinel.dashboard.nacos.config.namespace");
         Properties properties = new Properties();
-//        properties.put("serverAddr", "nacos");
-        properties.put("serverAddr", "192.168.0.6");
-        properties.put("namespace", "4c33f46c-fd59-4c27-b725-14c7af59fed8");
+        properties.put("serverAddr", serverAddr);
+        properties.put("namespace", namespace);
         return ConfigFactory.createConfigService(properties);
     }
 }
